@@ -32,7 +32,7 @@ Need more detail?
 
 ansible-playbook -i ansible/inventory.ini ansible/playbook.yml -vvv
 
-Check idempotence: run it twice. The second run should say "ok=… changed=0".
+Check idempotence: run it twice. The second run should say ok=… changed=0.
 
 🏷️ Tags (Selective Execution)
 
@@ -72,3 +72,4 @@ Add new roles for logging, auditd, or anything else your infra needs
 
 MIT © 2025 Marc Montolio
 
+TWlsaG91c2UhIFRlbGwgQmFydCB0byBjb21lIGhvbWUu
