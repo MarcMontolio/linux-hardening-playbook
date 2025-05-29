@@ -18,12 +18,20 @@
     path: /etc/login.defs
     regexp: '^PASS_MAX_DAYS'
     line: "PASS_MAX_DAYS {{ hardening_warn_password_max_days }}"
+  when: ansible_os_family == 'Debian'
 
 - name: Enforce minimum password length
   lineinfile:
     path: /etc/login.defs
     regexp: '^PASS_MIN_LEN'
     line: "PASS_MIN_LEN {{ hardening_min_password_length }}"
+  when: ansible_os_family == 'Debian'
+
+# --- SSH hardening: first check if sshd_config exists ---
+- name: Check if SSH config exists
+  stat:
+    path: /etc/ssh/sshd_config
+  register: sshd_config_stat
 
 - name: Disable root SSH login
   lineinfile:
@@ -31,6 +39,7 @@
     regexp: '^PermitRootLogin'
     line: 'PermitRootLogin no'
     backup: yes
+  when: sshd_config_stat.stat.exists
 
 - name: Set SSH idle timeout
   lineinfile:
@@ -38,6 +47,7 @@
     regexp: '^ClientAliveInterval'
     line: "ClientAliveInterval {{ hardening_ssh_idle_timeout }}"
     backup: yes
+  when: sshd_config_stat.stat.exists
 
 - name: Disable IPv6 if requested
   sysctl:
