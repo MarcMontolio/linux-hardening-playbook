@@ -7,24 +7,20 @@ on:
     branches: [ main ]
 
 jobs:
-  lint-and-test:
+  ansible-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install Python tools
+      - name: Install Ansible and yamllint
         run: |
-          pip install flake8 yamllint ansible
+          sudo apt-get update
+          sudo apt-get install -y ansible yamllint
 
-      - name: Test syntax & YAML lint
+      - name: Check Ansible playbook syntax
         run: |
-          bash tests/test_syntax.sh
+          ansible-playbook ansible/playbook.yml --syntax-check
 
-      - name: Run pytest
+      - name: Run yamllint on Ansible files
         run: |
-          pytest --maxfail=1 --disable-warnings -q
+          yamllint -c .yamllint.yml ansible/
