@@ -1,0 +1,61 @@
+---
+# Tasks for common CIS hardening
+
+- name: Ensure system is up-to-date
+  apt:
+    update_cache: yes
+    upgrade: dist
+  when: ansible_os_family == 'Debian'
+
+- name: Remove telnet package
+  apt:
+    name: telnet
+    state: absent
+  when: ansible_os_family == 'Debian'
+
+- name: Set maximum password age
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^PASS_MAX_DAYS'
+    line: "PASS_MAX_DAYS {{ hardening_warn_password_max_days }}"
+
+- name: Enforce minimum password length
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^PASS_MIN_LEN'
+    line: "PASS_MIN_LEN {{ hardening_min_password_length }}"
+
+- name: Disable root SSH login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+    backup: yes
+
+- name: Set SSH idle timeout
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^ClientAliveInterval'
+    line: "ClientAliveInterval {{ hardening_ssh_idle_timeout }}"
+    backup: yes
+
+- name: Disable IPv6 if requested
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: "1"
+    state: present
+    reload: yes
+  when: hardening_ipv6_disable
+
+- name: Ensure UFW is installed
+  apt:
+    name: ufw
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Configure UFW default deny incoming
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+  when: ansible_os_family == 'Debian'

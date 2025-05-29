@@ -1,0 +1,11 @@
+---
+- name: Lock down Linux boxes with CIS-inspired hardening
+  hosts: all
+  become: true
+  vars:
+    hardening_warn_password_max_days: 90
+    hardening_min_password_length: 14
+    hardening_ssh_idle_timeout: 300  # 5 minutes
+    hardening_ipv6_disable: true
+  roles:
+    - common-hardening
