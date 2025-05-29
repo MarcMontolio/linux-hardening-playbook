@@ -7,18 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - name: Install dependencies & lint
+
+      - name: Install Python tools
         run: |
-          pip install -r requirements.txt || true
-          pip install flake8 || true
-          flake8 src/ || true
-      - name: Run tests
-        run: pytest --maxfail=1 --disable-warnings -q || true
+          pip install -r requirements.txt
+          pip install flake8 yamllint ansible
+
+      - name: Lint Python
+        run: |
+          flake8 src/
+
+      - name: Test syntax & YAML lint
+        run: |
+          bash tests/test_syntax.sh
+
+      - name: Run pytest
+        run: |
+          pytest --maxfail=1 --disable-warnings -q
