@@ -19,7 +19,6 @@ jobs:
 
       - name: Install Python tools
         run: |
-          pip install -r requirements.txt
           pip install flake8 yamllint ansible
 
       - name: Lint Python
